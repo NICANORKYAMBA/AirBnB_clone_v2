@@ -6,12 +6,14 @@ from datetime import datetime
 
 
 class BaseModel:
-    """This class will defines all common attributes/methods
+    """
+    This class will defines all common attributes/methods
     for other classes
     """
-
     def __init__(self, *args, **kwargs):
-        """Instantiation of base model class
+        """
+        Instantiation of base model class
+        
         Args:
             args: it won't be used
             kwargs: arguments for the constructor of the BaseModel
@@ -41,9 +43,10 @@ class BaseModel:
 
     def __str__(self):
         """
-        Returns a string
+        Returns a string representation of an instance
+        
         Return:
-            returns a string of class name, id, and dictionary
+                string of class name, id, and dictionary
         """
         return "[{}] ({}) {}".format(
             type(self).__name__, self.id, self.__dict__)
@@ -56,7 +59,8 @@ class BaseModel:
 
     def save(self):
         """
-        Updates the public instance attribute updated_at to current
+        Updates the public instance attribute
+        'updated_at' with current datetime
         """
         self.updated_at = datetime.now()
         models.storage.new(self)
@@ -65,8 +69,9 @@ class BaseModel:
     def to_dict(self):
         """
         Creates dictionary of the class  and returns
+        
         Return:
-            returns a dictionary of all the key values in __dict__
+                dictionary of all the key values in __dict__
         """
         my_dict = dict(self.__dict__)
         my_dict["__class__"] = str(type(self).__name__)
