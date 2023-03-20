@@ -2,7 +2,7 @@
 """ Console Module """
 import cmd
 import sys
-import shlex
+from shlex import split
 from models.base_model import BaseModel
 from models.__init__ import storage
 from models.user import User
@@ -114,53 +114,46 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def do_create(self, args):
-        """Create an object of any class"""
-        try:
-            if not args:
-                raise SyntaxError()
-
-            # Split the arguments by spaces, ignoring spaces within quotes
-            arg_list = shlex.split(args)
-            class_name = arg_list[0]
-
-            # Create a dictionary to hold the parameters
-            params = {}
-            for arg in arg_list[1:]:
-                # Split each parameter by "="
-                parts = arg.split("=")
-                if len(parts) != 2:
-                    continue
-                key = parts[0].replace("_", " ")
-                value = parts[1].strip()
-                # Check if value is a string
-                if value.startswith('"') and value.endswith('"'):
-                    value = value[1:-1].replace('\\"', '"').replace("_", " ")
-                    # Check if value is a float
-                elif "." in value:
-                    try:
-                        value = float(value)
-                    except ValueError:
-                        continue
-                    # Check if value is an integer
-                elif value.isdigit():
-                    value = int(value)
-                else:
-                    continue
-            # Add the key-value pair to the dictionary
-            params[key] = value
-            # Create a new instance of the class with the parameters
-            new_instance = HBNBCommand.classes[class_name](**params)
-            # Save the new instance
-            storage.new(new_instance)
-            storage.save()
-            print(new_instance.id)
-        except SyntaxError:
+    def do_create(self, arg):
+        """
+        Creates a new instance of a given class.
+        """
+        if not arg:
             print("** class name missing **")
-        except NameError:
+            return
+
+        args = arg.split()
+        class_name = args[0]
+
+        if not self.classes.get(class_name):
             print("** class doesn't exist **")
-        except IndexError:
-            pass
+            return
+
+        # Parse parameters
+        kwargs = {}
+        for param in args[1:]:
+            key, value = param.split("=")
+            value = value.replace('_', ' ')
+            try:
+                # Try to convert value to integer
+                value = int(value)
+            except ValueError:
+                try:
+                    # Try to convert value to float
+                    value = float(value)
+                except ValueError:
+                    # Assume value is a string
+                    if value.startswith('"') and value.endswith('"'):
+                        # Remove quotes and unescape string
+                        value = value[1:-1].replace('\\"', '"')
+                    else:
+                        # Value is not a recognized type
+                        continue
+            kwargs[key] = value
+
+        instance = self.classes[class_name](**kwargs)
+        instance.save()
+        print(instance.id)
 
     def help_create(self):
         """ Help information for the create method """
