@@ -11,7 +11,8 @@ from models.review import Review
 
 
 class FileStorage:
-    """This class serializes instances to a JSON file and
+    """
+    This class serializes instances to a JSON file and
     deserializes JSON file to instances
     Attributes:
         __file_path: path to the JSON file
@@ -21,26 +22,26 @@ class FileStorage:
     __objects = {}
 
     def all(self, cls=None):
-        """Returns all the objects
+        """
+        Returns all the objects
 
         If a class is specified, the method only
         returns the objects of same type.
 
         """
+        if cls is None:
+            return self.__objects
 
-        if cls:
-            same_type = dict()
+        filtered_objects = {}
+        for key, value in self.__objects.items():
+            if type(value) == cls:
+                filtered_objects[key] = value
 
-            for key, obj in self.__objects.items():
-                if obj.__class__ == cls:
-                    same_type[key] = obj
-
-            return same_type
-
-        return self.__objects
+        return filtered_objects
 
     def new(self, obj):
-        """sets __object to given obj
+        """
+        Sets __object to given obj
         Args:
             obj: given object
         """
@@ -49,16 +50,18 @@ class FileStorage:
             self.__objects[key] = obj
 
     def save(self):
-        """serialize the file path to JSON file path
         """
-        my_dict = {}
+        Serialize the file path to JSON file path
+        """
+        new_dict = {}
         for key, value in self.__objects.items():
-            my_dict[key] = value.to_dict()
+            new_dict[key] = value.to_dict()
         with open(self.__file_path, 'w', encoding="UTF-8") as f:
-            json.dump(my_dict, f)
+            json.dump(new_dict, f)
 
     def reload(self):
-        """serialize the file path to JSON file path
+        """
+        Serialize the file path to JSON file path
         """
         try:
             with open(self.__file_path, 'r', encoding="UTF-8") as f:
@@ -69,7 +72,8 @@ class FileStorage:
             pass
 
     def delete(self, obj=None):
-        """Delete obj from __objects if it's inside
+        """
+        Delete obj from __objects if it's inside
         """
         if obj:
             key = "{}.{}".format(type(obj).__name__, obj.id)
@@ -79,5 +83,7 @@ class FileStorage:
                 self.save()
 
     def close(self):
-        """Deserialize JSON file to objects. Call the reload method."""
+        """
+        Deserialize JSON file to objects. Call the reload method.
+        """
         self.reload()
