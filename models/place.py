@@ -26,6 +26,13 @@ class Place(BaseModel, Base):
         user = relationship("User", back_populates="places")
         cities = relationship("City", back_populates="places")
     else:
+        @property
+        def reviews(self):
+            review_list = []
+            for review in models.storage.all(Review).values():
+                if review.place_id == self.id:
+                    review_list.append(review)
+            return review_list
         city_id = ""
         user_id = ""
         name = ""
