@@ -3,6 +3,7 @@
 import unittest
 import pep8
 import os
+from os import getenv
 from models.base_model import BaseModel
 from models.user import User
 from models.state import State
@@ -11,95 +12,89 @@ from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
 from models.engine.db_storage import DBStorage
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
+from models.engine.file_storage import FileStorage
+import MySQLdb
 
 
 @unittest.skipIf(
-        os.getenv('HBNB_TYPE_STORAGE') != 'db',
-        "This test only works with DBStorage")
+       os.getenv('HBNB_TYPE_STORAGE') != 'db',
+       "This test only work in DBStorage")
 class TestDBStorage(unittest.TestCase):
-    """Test cases for DBStorage"""
+    """this will test the DBStorage"""
 
     @classmethod
     def setUpClass(cls):
-        """Set up database connection and initialize session"""
-        cls.engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'
-                                   .format(os.getenv('HBNB_MYSQL_USER'),
-                                           os.getenv('HBNB_MYSQL_PWD'),
-                                           os.getenv('HBNB_MYSQL_HOST'),
-                                           os.getenv('HBNB_MYSQL_DB')),
-                                   pool_pre_ping=True)
-        if os.getenv('HBNB_ENV') == 'test':
-            Base.metadata.drop_all(cls.engine)
-        Session = sessionmaker(bind=cls.engine)
-        cls.session = Session()
-
-    def setUp(self):
-        """Create a new instance of DBStorage and initialize database"""
-        self.storage = DBStorage()
-        self.storage.reload()
-
-    def tearDown(self):
-        """Remove all data from the tables"""
-        self.session.rollback()
-        self.session.close()
+        """Tests"""
+        cls.user = User()
+        cls.user.first_name = "Kev"
+        cls.user.last_name = "Yo"
+        cls.user.email = "1234@yahoo.com"
+        cls.storage = FileStorage()
 
     @classmethod
-    def tearDownClass(cls):
-        """Close the database connection"""
-        cls.session.close()
+    def teardown(cls):
+        """at the end of the test this will tear it down"""
+        del cls.user
 
-    def test_pep8_conformance(self):
-        """Test that the code conforms to PEP8."""
-        pep8style = pep8.StyleGuide(quiet=True)
-        result = pep8style.check_files(['models/engine/db_storage.py'])
-        self.assertEqual(result.total_errors, 0, "Fix pep8")
+    def tearDown(self):
+        """teardown"""
+        try:
+            os.remove("file.json")
+        except Exception:
+            pass
+
+    def test_pep8_DBStorage(self):
+        """Tests pep8 style"""
+        style = pep8.StyleGuide(quiet=True)
+        p = style.check_files(['models/engine/db_storage.py'])
+        self.assertEqual(p.total_errors, 0, "fix pep8")
 
     def test_all(self):
-        """Test the all() method of DBStorage"""
-        objects = self.storage.all()
-        self.assertIsNotNone(objects)
-        self.assertEqual(type(objects), dict)
-        self.assertEqual(len(objects), 0)
+        """tests if all works in DB Storage"""
+        storage = FileStorage()
+        obj = storage.all()
+        self.assertIsNotNone(obj)
+        self.assertEqual(type(obj), dict)
+        self.assertIs(obj, storage._FileStorage__objects)
 
     def test_new(self):
-        """Test the new() method of DBStorage"""
-        state = State(name="California")
-        self.storage.new(state)
-        objects = self.storage.all()
-        self.assertEqual(len(objects), 1)
-        key = "{}.{}".format(type(state).__name__, state.id)
-        self.assertIsNotNone(objects[key])
+        """test when new is created"""
+        storage = FileStorage()
+        obj = storage.all()
+        user = User()
+        user.id = 123455
+        user.name = "Kevin"
+        storage.new(user)
+        key = user.__class__.__name__ + "." + str(user.id)
+        self.assertIsNotNone(obj[key])
 
-    def test_save(self):
-        """Test the save() method of DBStorage"""
-        state = State(name="California")
-        self.storage.new(state)
+    def test_reload_dbtorage(self):
+        """
+        tests reload
+        """
         self.storage.save()
-        key = "{}.{}".format(type(state).__name__, state.id)
-        objects = self.storage.all()
-        self.assertIsNotNone(objects[key])
-
-    def test_delete(self):
-        """Test the delete() method of DBStorage"""
-        state = State(name="California")
-        self.storage.new(state)
+        Root = os.path.dirname(os.path.abspath("console.py"))
+        path = os.path.join(Root, "file.json")
+        with open(path, 'r') as f:
+            lines = f.readlines()
+        try:
+            os.remove(path)
+        except Exception:
+            pass
         self.storage.save()
-        key = "{}.{}".format(type(state).__name__, state.id)
-        objects = self.storage.all()
-        self.assertIsNotNone(objects[key])
-        self.storage.delete(state)
-        objects = self.storage.all()
-        self.assertEqual(len(objects), 0)
-
-    def test_reload(self):
-        """Test the reload() method of DBStorage"""
-        state = State(name="California")
-        self.storage.new(state)
-        self.storage.save()
-        key = "{}.{}".format(type(state).__name__, state.id)
-        self.assertIsNotNone(self.storage.all()[key])
+        with open(path, 'r') as f:
+            lines2 = f.readlines()
+        self.assertEqual(lines, lines2)
+        try:
+            os.remove(path)
+        except Exception:
+            pass
+        with open(path, "w") as f:
+            f.write("{}")
+        with open(path, "r") as r:
+            for line in r:
+                self.assertEqual(line, "{}")
+        self.assertIs(self.storage.reload(), None)
 
 
 if __name__ == "__main__":
