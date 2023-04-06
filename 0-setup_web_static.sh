@@ -51,7 +51,7 @@ echo "server {
     root   /etc/nginx/html;
     index  index.html index.htm;
     location /redirect_me {
-        return 301 http://cuberule.com/;
+        return 301 https://www.youtube.com/;
     }
     location /hbnb_static/ {
         alias /data/web_static/current/;
