@@ -16,15 +16,7 @@ def do_clean(number=0):
     """
     Deletes out-of-date archives from the web servers.
     """
-    try:
-        number = int(number)
-    except ValueError:
-        print("Error: invalid number argument")
-        return False
-
-    if number < 1:
-        print("Error: number must be a positive integer")
-        return False
+    number = 1 if int(number) == 0 else int(number)
 
     archives_to_keep = sorted(local(
             'ls -1t versions', capture=True).split())
