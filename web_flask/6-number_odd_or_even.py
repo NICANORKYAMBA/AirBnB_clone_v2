@@ -1,14 +1,15 @@
 #!/usr/bin/python3
 """
-Script that starts Flask web application
+Script that starts a Flask web application
 
-Take the following urls:
+Take the following as urls:
     '/'
     '/hbnb'
     '/c/<text>'
     '/python/(<text>)'
     '/number/<n>'
     '/number_template/<n>'
+    '/number_odd_or_even/<n>'
 """
 from flask import Flask
 from flask import render_template
@@ -37,6 +38,7 @@ def hbnb():
 def display_c_text(text):
     """
     Displays 'C' followed by the value of text variable
+    passed as argument
     """
     text = text.replace('_', ' ')
     return 'C {}'.format(escape(text))
@@ -46,8 +48,9 @@ def display_c_text(text):
 @app.route('/python/<text>', strict_slashes=False)
 def display_python_text(text='is cool'):
     """
-    Displays 'Python' followed by the value of text
-    variable
+    Displays 'Python' followed by value of variable text
+    passed as an argument. The value is optional and set
+    to a default of 'is cool'
     """
     text = text.replace('_', ' ')
     return 'Python {}'.format(escape(text))
@@ -56,7 +59,7 @@ def display_python_text(text='is cool'):
 @app.route('/number/<int:n>', strict_slashes=False)
 def display_number(n):
     """
-    Displays n followed by 'is number' of n is an integer
+    Displays n if only it's an integer
     """
     return '{} is a number'.format(n)
 
@@ -67,6 +70,21 @@ def show_number_template(n):
     Displays HTML page only if n is an integer
     """
     return render_template('5-number.html', n=n)
+
+
+@app.route('/number_odd_or_even/<int:n>', strict_slashes=False)
+def display_number_odd_or_even(n):
+    """
+    Displays HTML page only if n is an integer and
+    specifies whether it's odd or even
+    """
+    if n % 2 == 0:
+        even_or_odd = 'even'
+    else:
+        even_or_odd = 'odd'
+
+    return render_template(
+            '6-number_odd_or_even.html', n=n, even_or_odd=even_or_odd)
 
 
 if __name__ == '__main__':
