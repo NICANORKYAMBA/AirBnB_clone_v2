@@ -14,15 +14,15 @@ app = Flask(__name__)
 def states_list():
     """Displays a list of all the states."""
     states = storage.all("State")
-    return render_template('9-states.html', state=states)
+    return render_template('9-states.html', states=states)
 
 
 @app.route('/states/<id>', strict_slashes=False)
 def state_cities_list(id):
     """Displays a list of all the cities in a state."""
-    for state in storage.all("State").values():
-        if state.id == id:
-            return render_template('9-states.html', state=state)
+    state = storage.get("State", id)
+    if state:
+        return render_template('9-states.html', state=state)
     return render_template('9-states.html')
 
 
