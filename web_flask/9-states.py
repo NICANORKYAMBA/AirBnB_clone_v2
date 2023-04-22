@@ -26,10 +26,10 @@ def states_list():
 @app.route('/states/<id>', strict_slashes=False)
 def state_cities_list(id):
     """Displays a list of all the cities in a state."""
-    state = storage.get(State, id)
-    if state is None:
-        return render_template('9-states.html')
-    return render_template('9-states.html', state=state, mode='id')
+    for state in storage.all(State).values():
+        if state.id == id:
+            return render_template('9-states.html', states=state, mode='id')
+    return render_template('9-states.html', states=state, mode='none')
 
 
 if __name__ == '__main__':
