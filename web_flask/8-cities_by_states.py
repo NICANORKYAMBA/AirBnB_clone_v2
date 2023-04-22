@@ -16,10 +16,9 @@ def states_and_cities():
     """
     Displays HTML page
     """
-    states = storage.all(State).values()
-    sorted_states = sorted(states, key=lambda state: state.name)
+    states = storage.all(State)
 
-    return render_template('8-cities_by_states.html', states=sorted_states)
+    return render_template('8-cities_by_states.html', states=states)
 
 
 @app.teardown_appcontext
