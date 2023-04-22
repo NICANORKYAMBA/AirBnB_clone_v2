@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+"""DB storage class for AirBnB"""
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
