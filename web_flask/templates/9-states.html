@@ -5,14 +5,14 @@
     </HEAD>
     
     <BODY>
-      {% if mode == 'all' %}
+      {% if state is mapping %}
         <H1>States</H1>
         <UL>
         {% for state in states.values()|sort(attribute='name') %}
             <LI>{{ state.id }}: <B>{{ state.name }}</B></LI>
         {% endfor %}
         </UL>
-      {% elif mode == 'id' %}
+      {% elif state is defined %}
         <H1>State: {{ state.name }}</H1>
         <H3>Cities:</H3>
         <UL>
