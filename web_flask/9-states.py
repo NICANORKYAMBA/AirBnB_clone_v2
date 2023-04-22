@@ -4,7 +4,7 @@ Module for a Flask web application to manage states and cities.
 """
 
 from flask import Flask, render_template
-from models import storage, State, City
+from models import storage, State
 
 
 app = Flask(__name__)
@@ -20,7 +20,7 @@ def teardown_db(exception):
 def states_list():
     """Displays a list of all the states."""
     states = storage.all(State).values()
-    return render_template('9-states.html', states=states)
+    return render_template('9-states.html', states=states, mode='all')
 
 
 @app.route('/states/<id>', strict_slashes=False)
@@ -29,8 +29,7 @@ def state_cities_list(id):
     state = storage.get(State, id)
     if state is None:
         return render_template('9-states.html')
-    cities = state.cities
-    return render_template('9-states.html', state=state, cities=cities)
+    return render_template('9-states.html', state=state, mode='id')
 
 
 if __name__ == '__main__':
