@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """Starts a Flask web application.
 
-Takes this routes:
+Takes this route:
     /hbnb_filters: HBnB HTML filters page.
 """
 from models import storage
@@ -27,4 +27,5 @@ def teardown(exc):
 
 
 if __name__ == "__main__":
+    """Start Flask web application"""
     app.run(host="0.0.0.0", port=5000)
